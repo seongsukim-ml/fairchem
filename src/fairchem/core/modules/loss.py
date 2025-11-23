@@ -150,10 +150,11 @@ class DDPMTLoss(nn.Module):
         target = target.view(input.shape)
         if input.numel() == mult_mask.numel():
             mult_mask = mult_mask.view(input.shape)
-
+        
         loss = (
             self.loss_fn(
-                input, torch.nan_to_num(target, posinf=0.0, neginf=0.0), natoms
+                torch.nan_to_num(input, posinf=0.0, neginf=0.0),
+                torch.nan_to_num(target, posinf=0.0, neginf=0.0), natoms
             )
             * mult_mask
         )
@@ -339,3 +340,4 @@ class DDPLoss(nn.Module):
 
         loss = self.loss_fn(input, target, natoms)
         return self._reduction(input, loss, natoms)
+

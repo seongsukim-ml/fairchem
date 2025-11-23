@@ -134,3 +134,6 @@ def main(
             local_launch(cfg, log_dir)
     else:
         raise ValueError(f"Unknown scheduler mode {scheduler_cfg.mode}")
+
+if __name__ == "__main__":
+    main()

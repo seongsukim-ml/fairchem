@@ -1,0 +1,771 @@
+job:
+  run_name: uma_qh9_direct_full_K4L2
+  timestamp_id: 202511-2106-3630-2352
+  run_dir: /root/25DFT/fairchem/checkpoint
+  device_type: CUDA
+  debug: false
+  scheduler:
+    mode: LOCAL
+    distributed_init_method: TCP
+    ranks_per_node: 1
+    num_nodes: 16
+    num_array_jobs: 1
+    slurm:
+      mem_gb: 40
+      timeout_hr: 168
+      cpus_per_task: 24
+      partition: null
+      qos: ocp
+      account: ocp
+      additional_parameters: null
+    use_ray: false
+    ray_cluster:
+      head_gpus: 0
+  logger:
+    _target_: fairchem.core.common.logger.WandBSingletonLogger.init_wandb
+    _partial_: true
+    entity: kaist-korea
+    project: qh9_mlff
+  seed: 0
+  deterministic: false
+  runner_state_path: null
+  metadata:
+    commit: core:cce3699d,experimental:NA
+    log_dir: /root/25DFT/fairchem/checkpoint/202511-2106-3630-2352/logs
+    checkpoint_dir: /root/25DFT/fairchem/checkpoint/202511-2106-3630-2352/checkpoints
+    results_dir: /root/25DFT/fairchem/checkpoint/202511-2106-3630-2352/results
+    config_path: /root/25DFT/fairchem/checkpoint/202511-2106-3630-2352/canonical_config.yaml
+    preemption_checkpoint_dir: /root/25DFT/fairchem/checkpoint/202511-2106-3630-2352/checkpoints/preemption_state
+    cluster_name: local-node
+    array_job_num: 0
+    slurm_env:
+      job_id: null
+      raw_job_id: null
+      array_job_id: null
+      array_task_id: null
+      restart_count: null
+  graph_parallel_group_size: null
+runner:
+  _target_: fairchem.core.components.train.train_runner.TrainEvalRunner
+  train_dataloader:
+    _target_: fairchem.core.components.common.dataloader_builder.get_dataloader
+    dataset:
+      _target_: fairchem.core.datasets.qh9_dataset.QH9AtomicDataset
+      config:
+        processed_dir: /root/25DFT/QHFlow/dataset/QH9Stable_shard/processed
+        metadata_path: /root/25DFT/QHFlow/dataset/QH9Stable_shard/processed/metadata_train.npz
+        split: train
+        split_filename: processed_QH9Stable_random_12.json
+        max_samples: null
+        key_mapping:
+          energy: energy
+          forces: forces
+    batch_sampler_fn:
+      _target_: fairchem.core.datasets.samplers.max_atom_distributed_sampler.MaxAtomDistributedBatchSampler
+      _partial_: true
+      max_atoms: 1200
+      shuffle: true
+      seed: 0
+    num_workers: 8
+    collate_fn:
+      _target_: fairchem.core.units.mlip_unit.mlip_unit.mt_collater_adapter
+      tasks:
+      - _target_: fairchem.core.units.mlip_unit.mlip_unit.Task
+        name: energy
+        level: system
+        property: energy
+        loss_fn:
+          _target_: fairchem.core.modules.loss.DDPMTLoss
+          loss_fn:
+            _target_: fairchem.core.modules.loss.PerAtomMAELoss
+          coefficient: 10
+        out_spec:
+          dim:
+          - 1
+          dtype: float32
+        normalizer:
+          _target_: fairchem.core.modules.normalization.normalizer.Normalizer
+          mean: 0.0
+          rmsd: 0.8
+        element_references:
+          _target_: fairchem.core.modules.normalization.element_references.ElementReferences
+          element_references:
+            _target_: torch.DoubleTensor
+            _args_:
+            - - 0.0
+              - -3.679124355316162
+              - -1.3378056287765503
+              - -3.7239913940429688
+              - -4.592716693878174
+              - -7.687317848205566
+              - -8.41640853881836
+              - -7.525318145751953
+              - -8.025588989257812
+              - -5.389685153961182
+              - -0.03005797415971756
+              - -2.7558460235595703
+              - -2.7971031665802
+              - -4.721299171447754
+              - -7.570775508880615
+              - -6.981732368469238
+              - -4.996428966522217
+              - -3.354858160018921
+              - -0.06283307820558548
+              - -2.60414981842041
+              - -5.521111488342285
+              - -7.961789608001709
+              - -10.151139259338379
+              - -9.776466369628906
+              - -10.182172775268555
+              - -9.458876609802246
+              - -7.932404041290283
+              - -6.091212749481201
+              - -5.266493320465088
+              - -3.203958749771118
+              - -1.3486576080322266
+              - -3.5260260105133057
+              - -4.564589977264404
+              - -3.898099422454834
+              - -4.201990127563477
+              - -2.8809189796447754
+              - 6.9195637702941895
+              - -2.574320077896118
+              - -5.184962272644043
+              - -10.202549934387207
+              - -11.72141170501709
+              - -12.063482284545898
+              - -10.50037956237793
+              - -8.85855770111084
+              - -7.736929416656494
+              - -6.870950222015381
+              - -4.921371936798096
+              - -2.1186888217926025
+              - -0.6435719132423401
+              - -2.779581069946289
+              - -3.7746050357818604
+              - -3.6241791248321533
+              - -3.1492624282836914
+              - -1.8959052562713623
+              - 10.294095993041992
+              - -2.846658229827881
+              - -4.987889766693115
+              - -9.249128341674805
+              - -8.800369262695312
+              - -8.043109893798828
+              - -8.190547943115234
+              - -7.944450855255127
+              - -8.290793418884277
+              - -13.709291458129883
+              - -18.544340133666992
+              - -7.6736063957214355
+              - -7.989833354949951
+              - -7.509627819061279
+              - -6.765751361846924
+              - -7.9181227684021
+              - -3.65626859664917
+              - -7.298524379730225
+              - -12.700183868408203
+              - -14.0196533203125
+              - -12.38825798034668
+              - -11.336587905883789
+              - -9.53471851348877
+              - -7.371169090270996
+              - -5.319552421569824
+              - -2.4043772220611572
+              - 0.28949788212776184
+              - -2.39648699760437
+              - -3.7129523754119873
+              - -3.401271343231201
+              - 0.0
+              - 0.0
+              - 0.0
+              - 0.0
+              - 0.0
+              - -3.553612232208252
+              - -10.63386058807373
+              - -12.45141887664795
+              - -13.549932479858398
+              - -14.93902587890625
+              - -15.31093692779541
+              - 0.0
+              - 0.0
+              - 0.0
+              - 0.0
+              - 0.0
+              - 0.0
+              - 0.0
+              - 0.0
+              - 0.0
+              - 0.0
+              - 0.0
+              - 0.0
+              - 0.0
+              - 0.0
+              - 0.0
+              - 0.0
+              - 0.0
+              - 0.0
+              - 0.0
+              - 0.0
+              - 0.0
+              - 0.0
+              - 0.0
+              - 0.0
+        datasets:
+        - qh9
+        metrics:
+        - mae
+        - per_atom_mae
+      - _target_: fairchem.core.units.mlip_unit.mlip_unit.Task
+        name: forces
+        level: atom
+        property: forces
+        train_on_free_atoms: true
+        eval_on_free_atoms: true
+        loss_fn:
+          _target_: fairchem.core.modules.loss.DDPMTLoss
+          loss_fn:
+            _target_: fairchem.core.modules.loss.L2NormLoss
+          reduction: per_structure
+          coefficient: 30
+        out_spec:
+          dim:
+          - 3
+          dtype: float32
+        normalizer:
+          _target_: fairchem.core.modules.normalization.normalizer.Normalizer
+          mean: 0.0
+          rmsd: 0.8
+        datasets:
+        - qh9
+        metrics:
+        - mae
+        - cosine_similarity
+        - magnitude_error
+  eval_dataloader:
+    _target_: fairchem.core.components.common.dataloader_builder.get_dataloader
+    dataset:
+      _target_: fairchem.core.datasets.qh9_dataset.QH9AtomicDataset
+      config:
+        processed_dir: /root/25DFT/QHFlow/dataset/QH9Stable_shard/processed
+        metadata_path: /root/25DFT/QHFlow/dataset/QH9Stable_shard/processed/metadata_test.npz
+        split: test
+        split_filename: processed_QH9Stable_random_12.json
+        max_samples: null
+        key_mapping:
+          energy: energy
+          forces: forces
+    batch_sampler_fn:
+      _target_: fairchem.core.datasets.samplers.max_atom_distributed_sampler.MaxAtomDistributedBatchSampler
+      _partial_: true
+      max_atoms: 1200
+      shuffle: false
+      seed: 0
+    num_workers: 8
+    collate_fn:
+      _target_: fairchem.core.units.mlip_unit.mlip_unit.mt_collater_adapter
+      tasks:
+      - _target_: fairchem.core.units.mlip_unit.mlip_unit.Task
+        name: energy
+        level: system
+        property: energy
+        loss_fn:
+          _target_: fairchem.core.modules.loss.DDPMTLoss
+          loss_fn:
+            _target_: fairchem.core.modules.loss.PerAtomMAELoss
+          coefficient: 10
+        out_spec:
+          dim:
+          - 1
+          dtype: float32
+        normalizer:
+          _target_: fairchem.core.modules.normalization.normalizer.Normalizer
+          mean: 0.0
+          rmsd: 0.8
+        element_references:
+          _target_: fairchem.core.modules.normalization.element_references.ElementReferences
+          element_references:
+            _target_: torch.DoubleTensor
+            _args_:
+            - - 0.0
+              - -3.679124355316162
+              - -1.3378056287765503
+              - -3.7239913940429688
+              - -4.592716693878174
+              - -7.687317848205566
+              - -8.41640853881836
+              - -7.525318145751953
+              - -8.025588989257812
+              - -5.389685153961182
+              - -0.03005797415971756
+              - -2.7558460235595703
+              - -2.7971031665802
+              - -4.721299171447754
+              - -7.570775508880615
+              - -6.981732368469238
+              - -4.996428966522217
+              - -3.354858160018921
+              - -0.06283307820558548
+              - -2.60414981842041
+              - -5.521111488342285
+              - -7.961789608001709
+              - -10.151139259338379
+              - -9.776466369628906
+              - -10.182172775268555
+              - -9.458876609802246
+              - -7.932404041290283
+              - -6.091212749481201
+              - -5.266493320465088
+              - -3.203958749771118
+              - -1.3486576080322266
+              - -3.5260260105133057
+              - -4.564589977264404
+              - -3.898099422454834
+              - -4.201990127563477
+              - -2.8809189796447754
+              - 6.9195637702941895
+              - -2.574320077896118
+              - -5.184962272644043
+              - -10.202549934387207
+              - -11.72141170501709
+              - -12.063482284545898
+              - -10.50037956237793
+              - -8.85855770111084
+              - -7.736929416656494
+              - -6.870950222015381
+              - -4.921371936798096
+              - -2.1186888217926025
+              - -0.6435719132423401
+              - -2.779581069946289
+              - -3.7746050357818604
+              - -3.6241791248321533
+              - -3.1492624282836914
+              - -1.8959052562713623
+              - 10.294095993041992
+              - -2.846658229827881
+              - -4.987889766693115
+              - -9.249128341674805
+              - -8.800369262695312
+              - -8.043109893798828
+              - -8.190547943115234
+              - -7.944450855255127
+              - -8.290793418884277
+              - -13.709291458129883
+              - -18.544340133666992
+              - -7.6736063957214355
+              - -7.989833354949951
+              - -7.509627819061279
+              - -6.765751361846924
+              - -7.9181227684021
+              - -3.65626859664917
+              - -7.298524379730225
+              - -12.700183868408203
+              - -14.0196533203125
+              - -12.38825798034668
+              - -11.336587905883789
+              - -9.53471851348877
+              - -7.371169090270996
+              - -5.319552421569824
+              - -2.4043772220611572
+              - 0.28949788212776184
+              - -2.39648699760437
+              - -3.7129523754119873
+              - -3.401271343231201
+              - 0.0
+              - 0.0
+              - 0.0
+              - 0.0
+              - 0.0
+              - -3.553612232208252
+              - -10.63386058807373
+              - -12.45141887664795
+              - -13.549932479858398
+              - -14.93902587890625
+              - -15.31093692779541
+              - 0.0
+              - 0.0
+              - 0.0
+              - 0.0
+              - 0.0
+              - 0.0
+              - 0.0
+              - 0.0
+              - 0.0
+              - 0.0
+              - 0.0
+              - 0.0
+              - 0.0
+              - 0.0
+              - 0.0
+              - 0.0
+              - 0.0
+              - 0.0
+              - 0.0
+              - 0.0
+              - 0.0
+              - 0.0
+              - 0.0
+              - 0.0
+        datasets:
+        - qh9
+        metrics:
+        - mae
+        - per_atom_mae
+      - _target_: fairchem.core.units.mlip_unit.mlip_unit.Task
+        name: forces
+        level: atom
+        property: forces
+        train_on_free_atoms: true
+        eval_on_free_atoms: true
+        loss_fn:
+          _target_: fairchem.core.modules.loss.DDPMTLoss
+          loss_fn:
+            _target_: fairchem.core.modules.loss.L2NormLoss
+          reduction: per_structure
+          coefficient: 30
+        out_spec:
+          dim:
+          - 3
+          dtype: float32
+        normalizer:
+          _target_: fairchem.core.modules.normalization.normalizer.Normalizer
+          mean: 0.0
+          rmsd: 0.8
+        datasets:
+        - qh9
+        metrics:
+        - mae
+        - cosine_similarity
+        - magnitude_error
+  train_eval_unit:
+    _target_: fairchem.core.units.mlip_unit.mlip_unit.MLIPTrainEvalUnit
+    job_config:
+      run_name: uma_qh9_direct_full_K4L2
+      timestamp_id: 202511-2106-3630-2352
+      run_dir: /root/25DFT/fairchem/checkpoint
+      device_type: CUDA
+      debug: false
+      scheduler:
+        mode: LOCAL
+        distributed_init_method: TCP
+        ranks_per_node: 1
+        num_nodes: 16
+        num_array_jobs: 1
+        slurm:
+          mem_gb: 40
+          timeout_hr: 168
+          cpus_per_task: 24
+          partition: null
+          qos: ocp
+          account: ocp
+          additional_parameters: null
+        use_ray: false
+        ray_cluster:
+          head_gpus: 0
+      logger:
+        _target_: fairchem.core.common.logger.WandBSingletonLogger.init_wandb
+        _partial_: true
+        entity: kaist-korea
+        project: qh9_mlff
+      seed: 0
+      deterministic: false
+      runner_state_path: null
+      metadata:
+        commit: core:cce3699d,experimental:NA
+        log_dir: /root/25DFT/fairchem/checkpoint/202511-2106-3630-2352/logs
+        checkpoint_dir: /root/25DFT/fairchem/checkpoint/202511-2106-3630-2352/checkpoints
+        results_dir: /root/25DFT/fairchem/checkpoint/202511-2106-3630-2352/results
+        config_path: /root/25DFT/fairchem/checkpoint/202511-2106-3630-2352/canonical_config.yaml
+        preemption_checkpoint_dir: /root/25DFT/fairchem/checkpoint/202511-2106-3630-2352/checkpoints/preemption_state
+        cluster_name: local-node
+        array_job_num: 0
+        slurm_env:
+          job_id: null
+          raw_job_id: null
+          array_job_id: null
+          array_task_id: null
+          restart_count: null
+      graph_parallel_group_size: null
+    tasks:
+    - _target_: fairchem.core.units.mlip_unit.mlip_unit.Task
+      name: energy
+      level: system
+      property: energy
+      loss_fn:
+        _target_: fairchem.core.modules.loss.DDPMTLoss
+        loss_fn:
+          _target_: fairchem.core.modules.loss.PerAtomMAELoss
+        coefficient: 10
+      out_spec:
+        dim:
+        - 1
+        dtype: float32
+      normalizer:
+        _target_: fairchem.core.modules.normalization.normalizer.Normalizer
+        mean: 0.0
+        rmsd: 0.8
+      element_references:
+        _target_: fairchem.core.modules.normalization.element_references.ElementReferences
+        element_references:
+          _target_: torch.DoubleTensor
+          _args_:
+          - - 0.0
+            - -3.679124355316162
+            - -1.3378056287765503
+            - -3.7239913940429688
+            - -4.592716693878174
+            - -7.687317848205566
+            - -8.41640853881836
+            - -7.525318145751953
+            - -8.025588989257812
+            - -5.389685153961182
+            - -0.03005797415971756
+            - -2.7558460235595703
+            - -2.7971031665802
+            - -4.721299171447754
+            - -7.570775508880615
+            - -6.981732368469238
+            - -4.996428966522217
+            - -3.354858160018921
+            - -0.06283307820558548
+            - -2.60414981842041
+            - -5.521111488342285
+            - -7.961789608001709
+            - -10.151139259338379
+            - -9.776466369628906
+            - -10.182172775268555
+            - -9.458876609802246
+            - -7.932404041290283
+            - -6.091212749481201
+            - -5.266493320465088
+            - -3.203958749771118
+            - -1.3486576080322266
+            - -3.5260260105133057
+            - -4.564589977264404
+            - -3.898099422454834
+            - -4.201990127563477
+            - -2.8809189796447754
+            - 6.9195637702941895
+            - -2.574320077896118
+            - -5.184962272644043
+            - -10.202549934387207
+            - -11.72141170501709
+            - -12.063482284545898
+            - -10.50037956237793
+            - -8.85855770111084
+            - -7.736929416656494
+            - -6.870950222015381
+            - -4.921371936798096
+            - -2.1186888217926025
+            - -0.6435719132423401
+            - -2.779581069946289
+            - -3.7746050357818604
+            - -3.6241791248321533
+            - -3.1492624282836914
+            - -1.8959052562713623
+            - 10.294095993041992
+            - -2.846658229827881
+            - -4.987889766693115
+            - -9.249128341674805
+            - -8.800369262695312
+            - -8.043109893798828
+            - -8.190547943115234
+            - -7.944450855255127
+            - -8.290793418884277
+            - -13.709291458129883
+            - -18.544340133666992
+            - -7.6736063957214355
+            - -7.989833354949951
+            - -7.509627819061279
+            - -6.765751361846924
+            - -7.9181227684021
+            - -3.65626859664917
+            - -7.298524379730225
+            - -12.700183868408203
+            - -14.0196533203125
+            - -12.38825798034668
+            - -11.336587905883789
+            - -9.53471851348877
+            - -7.371169090270996
+            - -5.319552421569824
+            - -2.4043772220611572
+            - 0.28949788212776184
+            - -2.39648699760437
+            - -3.7129523754119873
+            - -3.401271343231201
+            - 0.0
+            - 0.0
+            - 0.0
+            - 0.0
+            - 0.0
+            - -3.553612232208252
+            - -10.63386058807373
+            - -12.45141887664795
+            - -13.549932479858398
+            - -14.93902587890625
+            - -15.31093692779541
+            - 0.0
+            - 0.0
+            - 0.0
+            - 0.0
+            - 0.0
+            - 0.0
+            - 0.0
+            - 0.0
+            - 0.0
+            - 0.0
+            - 0.0
+            - 0.0
+            - 0.0
+            - 0.0
+            - 0.0
+            - 0.0
+            - 0.0
+            - 0.0
+            - 0.0
+            - 0.0
+            - 0.0
+            - 0.0
+            - 0.0
+            - 0.0
+      datasets:
+      - qh9
+      metrics:
+      - mae
+      - per_atom_mae
+    - _target_: fairchem.core.units.mlip_unit.mlip_unit.Task
+      name: forces
+      level: atom
+      property: forces
+      train_on_free_atoms: true
+      eval_on_free_atoms: true
+      loss_fn:
+        _target_: fairchem.core.modules.loss.DDPMTLoss
+        loss_fn:
+          _target_: fairchem.core.modules.loss.L2NormLoss
+        reduction: per_structure
+        coefficient: 30
+      out_spec:
+        dim:
+        - 3
+        dtype: float32
+      normalizer:
+        _target_: fairchem.core.modules.normalization.normalizer.Normalizer
+        mean: 0.0
+        rmsd: 0.8
+      datasets:
+      - qh9
+      metrics:
+      - mae
+      - cosine_similarity
+      - magnitude_error
+    model:
+      _target_: fairchem.core.models.base.HydraModel
+      backbone:
+        model: fairchem.core.models.uma.escn_moe.eSCNMDMoeBackbone
+        moe_dropout: 0.05
+        moe_layer_type: pytorch
+        num_experts: 1
+        use_composition_embedding: true
+        use_global_embedding: false
+        max_num_elements: 100
+        sphere_channels: 128
+        lmax: 2
+        mmax: 2
+        otf_graph: true
+        max_neighbors: 30
+        use_pbc: false
+        use_pbc_single: true
+        cutoff: 6
+        edge_channels: 128
+        distance_function: gaussian
+        num_distance_basis: 64
+        regress_forces: true
+        regress_stress: false
+        direct_forces: true
+        num_layers: 4
+        hidden_channels: 128
+        norm_type: rms_norm_sh
+        act_type: gate
+        ff_type: spectral
+        chg_spin_emb_type: rand_emb
+        cs_emb_grad: true
+        dataset_list:
+        - qh9
+        always_use_pbc: false
+      heads:
+        energy:
+          module: fairchem.core.models.uma.escn_md.MLP_Energy_Head
+        forces:
+          module: fairchem.core.models.uma.escn_md.Linear_Force_Head
+    optimizer_fn:
+      _target_: torch.optim.AdamW
+      _partial_: true
+      lr: 0.0004
+      weight_decay: 0.001
+    cosine_lr_scheduler_fn:
+      _target_: fairchem.core.units.mlip_unit.mlip_unit._get_consine_lr_scheduler
+      _partial_: true
+      warmup_factor: 0.2
+      warmup_epochs: 2
+      lr_min_factor: 0.01
+      epochs: 200
+      steps: null
+    print_every: 10
+    clip_grad_norm: 100
+    bf16: false
+  max_epochs: 200
+  max_steps: null
+  evaluate_every_n_steps: 5000
+  callbacks:
+  - _target_: fairchem.core.common.profiler_utils.ProfilerCallback
+    job_config:
+      run_name: uma_qh9_direct_full_K4L2
+      timestamp_id: 202511-2106-3630-2352
+      run_dir: /root/25DFT/fairchem/checkpoint
+      device_type: CUDA
+      debug: false
+      scheduler:
+        mode: LOCAL
+        distributed_init_method: TCP
+        ranks_per_node: 1
+        num_nodes: 16
+        num_array_jobs: 1
+        slurm:
+          mem_gb: 40
+          timeout_hr: 168
+          cpus_per_task: 24
+          partition: null
+          qos: ocp
+          account: ocp
+          additional_parameters: null
+        use_ray: false
+        ray_cluster:
+          head_gpus: 0
+      logger:
+        _target_: fairchem.core.common.logger.WandBSingletonLogger.init_wandb
+        _partial_: true
+        entity: kaist-korea
+        project: qh9_mlff
+      seed: 0
+      deterministic: false
+      runner_state_path: null
+      metadata:
+        commit: core:cce3699d,experimental:NA
+        log_dir: /root/25DFT/fairchem/checkpoint/202511-2106-3630-2352/logs
+        checkpoint_dir: /root/25DFT/fairchem/checkpoint/202511-2106-3630-2352/checkpoints
+        results_dir: /root/25DFT/fairchem/checkpoint/202511-2106-3630-2352/results
+        config_path: /root/25DFT/fairchem/checkpoint/202511-2106-3630-2352/canonical_config.yaml
+        preemption_checkpoint_dir: /root/25DFT/fairchem/checkpoint/202511-2106-3630-2352/checkpoints/preemption_state
+        cluster_name: local-node
+        array_job_num: 0
+        slurm_env:
+          job_id: null
+          raw_job_id: null
+          array_job_id: null
+          array_task_id: null
+          restart_count: null
+      graph_parallel_group_size: null
+  - _target_: fairchem.core.components.train.train_runner.TrainCheckpointCallback
+    checkpoint_every_n_steps: 2000
+    max_saved_checkpoints: 5

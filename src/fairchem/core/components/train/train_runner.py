@@ -138,6 +138,36 @@ class TrainEvalRunner(Runner):
         self.max_steps = max_steps
         self.evaluate_every_n_steps = evaluate_every_n_steps
 
+        # Print learnable parameter count in a more readable way
+        total_params = sum(p.numel() for p in self.train_eval_unit.model.parameters())
+        trainable_params = sum(p.numel() for p in self.train_eval_unit.model.parameters() if p.requires_grad)
+        print("=" * 60)
+        print(f"Train Unit Model Parameter Count Summary:")
+        print(f"  Total Parameters        : {total_params:,}")
+        print(f"  Trainable Parameters    : {trainable_params:,}")
+        print("=" * 60)
+
+        # Alternative approach using torchinfo if available
+        try:
+            from torchinfo import summary
+            # Replace input_size with the correct shape for your model if possible
+            print("Model Summary (via torchinfo.summary):")
+            summary(self.train_eval_unit.model, verbose=0)
+        except ImportError:
+            pass
+        except Exception as e:
+            print(f"[torchinfo.summary error: {e}]")
+
+        # Another way: Pretty-print named parameters (top 10)
+        print("First 10 named parameters:")
+        for i, (name, param) in enumerate(self.train_eval_unit.model.named_parameters()):
+            if i >= 10:
+                print("  ...")
+                break
+            print(f"  {name:40}: shape={tuple(param.shape)}, requires_grad={param.requires_grad}")
+
+
+
         checkpoint_callbacks = [
             c for c in callbacks if isinstance(c, TrainCheckpointCallback)
         ]

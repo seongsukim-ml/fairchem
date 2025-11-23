@@ -1,0 +1,25 @@
+qh9_train:
+  splits:
+    train:
+      processed_dir: /root/25DFT/QHFlow/dataset/QH9Stable_shard/processed
+      split: train
+      split_filename: processed_QH9Stable_random_12.json
+      max_samples: 40
+  format: qh9
+  dataset_name: qh9
+  key_mapping:
+    energy: qh9_energy
+    forces: forces
+
+qh9_val:
+  splits:
+    val:
+      processed_dir: /root/25DFT/QHFlow/dataset/QH9Stable_shard/processed
+      split: val
+      split_filename: processed_QH9Stable_random_12.json
+      max_samples: 256
+  format: qh9
+  dataset_name: qh9
+  key_mapping:
+    energy: qh9_energy
+    forces: forces

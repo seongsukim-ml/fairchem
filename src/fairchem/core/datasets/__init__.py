@@ -9,6 +9,7 @@ from .base_dataset import create_dataset
 from .collaters.simple_collater import (
     data_list_collater,
 )
+from .qh9_dataset import QH9AtomicDataset
 
 __all__ = [
     "AseDBDataset",
@@ -16,4 +17,5 @@ __all__ = [
     "AseReadMultiStructureDataset",
     "create_dataset",
     "data_list_collater",
+    "QH9AtomicDataset",
 ]

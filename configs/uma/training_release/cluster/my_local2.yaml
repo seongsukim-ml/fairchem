@@ -1,0 +1,11 @@
+data_root_dir: /root/25DFT/data
+run_dir: /root/25DFT/fairchem/checkpoint
+account: ocp
+qos: ocp
+mode: LOCAL
+device: CUDA
+ranks_per_node: 1
+dataloader_workers: 8
+debug: False
+mem_gb: 40
+cpus_per_task: 24
